@@ -1,9 +1,11 @@
 #include <iostream>
+#include "tlist.h"
 
 int main()
 {
     std::cout << "Program Begin...\n";
-    int testNum = 10;
-    std::cout << testNum << std::endl;
+    TList<char> L1;
+    TList<char>* p_L1 = new TList<char>();
+
     std::cout << "Program End...\n";
 }

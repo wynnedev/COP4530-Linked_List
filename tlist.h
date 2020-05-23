@@ -25,7 +25,8 @@ public:
    TList& operator=(const TList& L);	// Copy assignment operator
    TList(TList && L);			// Move constructor
    TList& operator=(TList && L);	// Move assignment operator
-
+   
+   void Init();               // Initialize empty list
    bool IsEmpty() const;		// Checks to see whether list is empty
    void Clear();			// Clear out list, reset to empty
    int GetSize() const;			// Return the size of the list
@@ -37,6 +38,7 @@ public:
 
    T& GetFirst() const;			// Return first element of list
    T& GetLast() const;			// Return last element of list
+   
 
    TListIterator<T> GetIterator() const;    // Return iterator to first item
    TListIterator<T> GetIteratorEnd() const; // Return iterator to last item
@@ -100,5 +102,5 @@ private:
    Node<T>* ptr;		// pointer to current list item
 };
 
-#include "tlist.cpp"		// bring in definition file here
+#include "tlist.hpp"		// bring in definition file here
 
