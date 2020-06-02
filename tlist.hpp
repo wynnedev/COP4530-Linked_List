@@ -1,17 +1,66 @@
 template <typename T>
 TList<T>::TList()
 {
-    std::cout << "TList()\n";
     Init();
 }
 
 template <typename T>
 TList<T>::TList(T val, int num)
 {
-    while(num--)
-    {
-        Insert(GetIteratorEnd(), val);
+    Init();
+    while(num--){
+        InsertFront(val);
     }
+}
+
+template <typename T>
+TList<T>::TList(const TList& L)
+{
+    Init();
+    TListIterator<T> itr = L.GetIterator();
+
+    while(itr.HasNext())
+    {
+        this->InsertBack(itr.GetData());
+        itr.Next();
+    }
+}
+
+template <typename T>
+TList<T>& TList<T>::operator=(const TList<T>& L)
+{   
+    Init();
+        Init();
+    TListIterator<T> itr = L.GetIterator();
+
+    while(itr.HasNext())
+    {
+        this->InsertBack(itr.GetData());
+        itr.Next();
+    }
+
+    return *this;
+}
+
+template <typename T>
+TList<T>::TList(TList<T> &&L) : size(L.size), first(L.first), last(L.last){
+    L.Init();
+}
+
+template <typename T>
+TList<T>& TList<T>::operator=( TList<T>&& L)
+{   
+    Init();
+        Init();
+    TListIterator<T> itr = L.GetIterator();
+
+    while(itr.HasNext())
+    {
+        this->InsertBack(itr.GetData());
+        itr.Next();
+    }
+
+    return *this;
 }
 
 template <typename T>
@@ -23,69 +72,20 @@ TList<T>::~TList()
 }
 
 template <typename T>
-TList<T>::TList(const TList& L)
-{
-    Init();
-    bool copyData;
-    while(copyData)
-    {
-        os << itr.GetData() << delim;
-
-        if(itr.HasNext()){
-            itr.Next();
-        }
-
-        else
-        {
-            copyData = false;
-        }
-    }
-
-}
-
-template <typename T>
-TList<T>& TList<T>::operator=(const TList& L)
-{
-    TList<T> copy = L
-    std::swap(*this, copy);
-    return *this;
-}
-
-template <typename T>
-TList<T>::TList<T>(TList&& L)
-{
-    size = L.size;
-    first = L.first;
-    last = L.last;
-
-    L.size = 0;
-    L.first = nullptr;
-    L.last = nullptr;
-}
-
-template <typename T>
-TList<T>& TList<T>::operator=(TList&& L)
-{
-    std::swap(size, L.size);
-    std::swap(first, L.first);
-    std::swap(last, L.last);
-}
-
-template <typename T>
 void TList<T>::Init()
 {
-    std::cout << "Init()\n";
-    first = new Node<T>;
-    last = new Node<T>;
+    first = new Node<T>();
+    last = new Node<T>();
     first->next = last;
     last->prev = first;
+    
     size = 0;
 }
 
 template <typename T>
 bool TList<T>::IsEmpty() const
-{
-    if(size == 0)
+{   
+    if(size  == 0)
     {
         return true;
     }
@@ -96,12 +96,10 @@ bool TList<T>::IsEmpty() const
 template <typename T>
 void TList<T>::Clear()
 {
-   int sz = size;
-
-   while(size--)
-   {
-       RemoveFront();
-   }
+    while(!IsEmpty())
+    {
+        RemoveFront();
+    }
 }
 
 template <typename T>
@@ -113,13 +111,21 @@ int TList<T>::GetSize() const
 template <typename T>
 void TList<T>::InsertFront(const T& d)
 {
-    Insert(GetInterator(), d);
+    Insert(GetIterator(), d);
 }
 
 template <typename T>
-void TList<T>::InsertBack( const T& d)
+void TList<T>::InsertBack(const T& d)
 {
     Insert(GetIteratorEnd(), d);
+}
+
+template <typename T>
+TListIterator<T> TList<T>::GetIterator() const
+{   
+    TListIterator<T> begin;
+    begin.ptr = first->next;
+    return begin;
 }
 
 template <typename T>
@@ -131,89 +137,72 @@ void TList<T>::RemoveFront()
 template <typename T>
 void TList<T>::RemoveBack()
 {
-    Remove(GetIteratorEnd());
+    TListIterator<T> itr = GetIteratorEnd();
+    Remove(itr.Previous());
 }
 
 template <typename T>
 T& TList<T>::GetFirst() const
 {
-    return GetIterator().GetData();
+    TListIterator<T> begin;
+    begin.ptr = first->next;
+    return begin.GetData(); 
 }
 
 template <typename T>
 T& TList<T>::GetLast() const
 {
-    return GetIteratorEnd().GetData();
-}
-
-template <typename T>
-TListIterator<T> TList<T>::GetIterator() const
-{
-    return TListIterator<T> itr.ptr = first->next;
+    TListIterator<T> end;
+    end.ptr = last->prev;
+    return end.GetData(); 
 }
 
 template <typename T>
 TListIterator<T> TList<T>::GetIteratorEnd() const
 {
-    return TListIterator<T> itr.ptr = last->prev;
+    TListIterator<T> end;
+    end.ptr = last;
+    return end;
 }
 
 template <typename T>
 void TList<T>::Insert(TListIterator<T> pos, const T& d)
 {
-    Node<T> *ptr(d);
-
-    ptr->prev = pos.ptr->prev;
-    ptr->next = pos.ptr;
-    pos.ptr->prev->next = ptr;
-    pos.ptr->prev = ptr;
+    Node<T> *current = pos.ptr;
     ++size;
+    current->prev = current->prev->next = new Node<T>(d, current->prev, current);
 }
 
 template <typename T>
-TListIterator<T> Remove(TListIterator<T> pos)
+TListIterator<T> TList<T>::Remove(TListIterator<T> pos)
 {
-    Node<T> *ptr = pos.ptr;
-    TListIterator<T> itr(ptr->next);
-    ptr->prev->next = ptr->next;
-    ptr->next->prev = ptr->prev;
-    delete ptr;
-    --size;
+    Node<T> *current = pos.ptr;
+    TListIterator<T> returnItr; 
+    returnItr.ptr = current->next;
 
-    return itr;
+    current->prev->next = current->next;
+    current->next->prev = current->prev;
+    delete current;
+    --size; 
+    return returnItr;
 }
 
 template <typename T>
-void TList<T>::Print(std::ostream& os, char delim = ' ') const
+void TList<T>::Print(std::ostream& os, char delim) const
 {
-    TListIterator<T> itr = GetIterator();
-    bool printData = true;
-    while(printData)
+    TListIterator<T> current = this->GetIterator();
+
+    while(current.HasNext())
     {
-        os << itr.GetData() << delim;
-
-        if(itr.HasNext()){
-            itr.Next();
-        }
-
-        else
-        {
-            printData = false;
-        }
+        os << current.GetData() << delim;
+        current.Next();
     }
-}
 
-template <typename T>
-TList<T> operator+(const TList<T>& t1, const TList<T>& t2)
-{
-    ///TODO concatenate list
+    std::cout << std::endl;
 }
-
+/*************** ITERATORS ******************/
 template <typename T>
-TListIterator<T>::TListIterator()
-{
-    ptr = nullptr;
-}
+TListIterator<T>::TListIterator() : ptr(nullptr) {}
 
 template <typename T>
 bool TListIterator<T>::HasNext() const
@@ -232,7 +221,7 @@ bool TListIterator<T>::HasPrevious() const
     if(ptr->prev != nullptr)
     {
         return true;
-    }
+    }   
 
     return false;
 }
@@ -241,18 +230,20 @@ template <typename T>
 TListIterator<T> TListIterator<T>::Next()
 {
     ptr = ptr->next;
+    return *this;
 }
 
 template <typename T>
 TListIterator<T> TListIterator<T>::Previous()
 {
     ptr = ptr->prev;
+    return *this;
 }
 
 template <typename T>
 T& TListIterator<T>::GetData() const
 {
-    return ptr->data;
+    return this->ptr->data;
 }
 
-
+/*************************************************************/

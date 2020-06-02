@@ -21,6 +21,7 @@ class Node
    friend class TList<T>;
    friend class TListIterator<T>;
 public:
+   Node(const T& d, Node<T> *p = nullptr, Node<T> *n = nullptr);
    Node(const T& d);
    Node(T && d);
    Node();
@@ -62,4 +63,10 @@ template <typename T>
 Node<T>::Node()
 {
    prev = next = nullptr;
+}
+
+template <typename T>
+Node<T>::Node(const T& d, Node<T> *p, Node<T> *n) : data (d), prev(p), next(n)
+{
+
 }

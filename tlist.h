@@ -77,7 +77,25 @@ T TList<T>::dummy;		// initialization of static member
 // **********************************************************
 
 template <typename T>
-TList<T> operator+(const TList<T>& t1, const TList<T>& t2);
+TList<T> operator+(const TList<T>& t1, const TList<T>& t2)
+{
+   TList<T> newList;
+   TListIterator<T> current = t1.GetIterator();
+      while(current.HasNext())
+   {
+      newList.InsertBack(current.GetData());
+      current.Next();
+   }
+
+   current = t2.GetIterator();
+   while(current.HasNext())
+   {
+      newList.InsertBack(current.GetData());
+      current.Next();
+   }
+
+   return newList;
+}
 
 
 // **********************************************************
